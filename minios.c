@@ -10,11 +10,13 @@ void listar_directorio();
 void iniciar_bsdgames();
 void limpiar_buffer();
 void limpiar_pantalla();
+void pausar();
 
 int main() {
     int opcion = 0;
 
     while (1) {
+        limpiar_pantalla();
         printf("_______________________________________________________ \n");
         printf("   MINI SISTEMA OPERATIVO (CLI)\n");
         printf("_______________________________________________________ \n");
@@ -34,43 +36,46 @@ int main() {
         if (scanf("%d", &opcion) != 1) {
             limpiar_buffer();
             limpiar_pantalla();
-            printf("Opción no válida. Ingrese un número.\n\n");
+            printf("Opción no válida. Ingrese un número.\n");
+            pausar();
             continue;
         }
         limpiar_buffer();
-
         limpiar_pantalla();
 
         switch (opcion) {
             case 1:
                 crear_archivo();
+                pausar();
                 break;
             case 2:
                 leer_archivo();
+                pausar();
                 break;
             case 3:
                 actualizar_archivo();
+                pausar();
                 break;
             case 4:
                 eliminar_archivo();
+                pausar();
                 break;
             case 5:
                 iniciar_bsdgames();
+                pausar();
                 break;
             case 6:
                 printf("Apagando Sistema...\n¡Hasta luego!\n");
                 return 0;
             case 7:
                 listar_directorio();
+                pausar();
                 break;
             default:
                 printf("Opción no válida. Intente de nuevo.\n");
+                pausar();
                 break;
         }
-
-        printf("\nPresione ENTER para continuar...");
-        getchar();
-        limpiar_pantalla();
     }
 
     return 0;
@@ -89,13 +94,18 @@ void limpiar_pantalla() {
 #endif
 }
 
+void pausar() {
+    printf("\nPresione ENTER para continuar...");
+    getchar();
+}
+
 void crear_archivo() {
     char nombre[100];
     char contenido[500];
 
     printf("--- CREAR ARCHIVO ---\n");
     printf("Ingrese el nombre del archivo (ej. notas.txt): ");
-    scanf("%99s", nombre);
+    if (scanf("%99s", nombre) != 1) return;
     limpiar_buffer();
 
     FILE *archivo = fopen(nombre, "w");
@@ -105,12 +115,12 @@ void crear_archivo() {
     }
 
     printf("Ingrese el texto que desea guardar en el archivo:\n> ");
-    fgets(contenido, sizeof(contenido), stdin);
-
-    fputs(contenido, archivo);
+    if (fgets(contenido, sizeof(contenido), stdin) != NULL) {
+        fputs(contenido, archivo);
+    }
+    
     fclose(archivo);
-
-    printf("[Éxito] Archivo '%s' creado correctamente.\n", nombre);
+    printf("[Éxito] Archivo '%s' guardado correctamente.\n", nombre);
 }
 
 void leer_archivo() {
@@ -119,20 +129,27 @@ void leer_archivo() {
 
     printf("--- LEER ARCHIVO ---\n");
     printf("Ingrese el nombre del archivo a leer: ");
-    scanf("%99s", nombre);
+    if (scanf("%99s", nombre) != 1) return;
+    limpiar_buffer();
 
     FILE *archivo = fopen(nombre, "r");
     if (archivo == NULL) {
-        printf("[Error] El archivo '%s' no existe o no se puede abrir.\n", nombre);
+        printf("[Error] El archivo '%s' no existe o está vacío.\n", nombre);
         return;
     }
 
     printf("\n--- Contenido de '%s' ---\n", nombre);
+    int caracteres_leidos = 0;
     while ((ch = fgetc(archivo)) != EOF) {
         putchar(ch);
+        caracteres_leidos++;
     }
+    
+    if (caracteres_leidos == 0) {
+        printf("(El archivo está vacío)");
+    }
+    
     printf("\n---------------------------\n");
-
     fclose(archivo);
 }
 
@@ -142,7 +159,7 @@ void actualizar_archivo() {
 
     printf("--- ACTUALIZAR ARCHIVO ---\n");
     printf("Ingrese el nombre del archivo a modificar: ");
-    scanf("%99s", nombre);
+    if (scanf("%99s", nombre) != 1) return;
     limpiar_buffer();
 
     FILE *archivo = fopen(nombre, "a");
@@ -152,11 +169,11 @@ void actualizar_archivo() {
     }
 
     printf("Ingrese el texto adicional a añadir:\n> ");
-    fgets(contenido, sizeof(contenido), stdin);
+    if (fgets(contenido, sizeof(contenido), stdin) != NULL) {
+        fputs(contenido, archivo);
+    }
 
-    fputs(contenido, archivo);
     fclose(archivo);
-
     printf("[Éxito] Archivo '%s' actualizado correctamente.\n", nombre);
 }
 
@@ -165,7 +182,8 @@ void eliminar_archivo() {
 
     printf("--- ELIMINAR ARCHIVO ---\n");
     printf("Ingrese el nombre del archivo que desea eliminar: ");
-    scanf("%99s", nombre);
+    if (scanf("%99s", nombre) != 1) return;
+    limpiar_buffer();
 
     if (remove(nombre) == 0) {
         printf("[Éxito] El archivo '%s' fue eliminado correctamente.\n", nombre);
@@ -202,6 +220,7 @@ void iniciar_bsdgames() {
             if (scanf("%d", &intento) == 1) {
                 if (intento == secreto) {
                     printf("¡Felicidades! ¡Completaste el reto BSDGames!\n");
+                    limpiar_buffer();
                     return;
                 } else if (intento < secreto) {
                     printf("Es mayor...\n");
@@ -213,5 +232,6 @@ void iniciar_bsdgames() {
             }
         }
         printf("¡Agotaste los intentos! El número era %d.\n", secreto);
+        limpiar_buffer();
     }
 }
