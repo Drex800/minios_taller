@@ -1,10 +1,8 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#define DISK_PATH "./disk"
-#define LOG_FILE "./disk/system.log"
-
-typedef enum {
+typedef enum
+{
     LOG_INFO,
     LOG_WARNING,
     LOG_ERROR
