@@ -1,6 +1,10 @@
+#include "logger.h"
 #define _XOPEN_SOURCE 700
 #include "file_manager.h"
 #include "logger.h"
+#ifndef DISK_PATH
+#define DISK_PATH "disk"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
