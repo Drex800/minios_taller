@@ -1,19 +1,26 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Iinclude -D_POSIX_C_SOURCE=200809L
+CFLAGS = -Wall -Wextra -Iinclude -std=c99 -D_POSIX_C_SOURCE=200809L
+SRC_DIR = src
+INC_DIR = include
+OBJ_DIR = build
 
-SRCS = src/main.c src/logger.c src/file_manager.c src/games.c
-OBJS = $(SRCS:.c=.o)
+SRCS = $(SRC_DIR)/main.c $(SRC_DIR)/logger.c $(SRC_DIR)/file_manager.c $(SRC_DIR)/games.c
+OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 TARGET = minios
 
-all: $(TARGET)
+.PHONY: all clean init
+
+all: init $(TARGET)
+
+init:
+	@mkdir -p $(OBJ_DIR)
+	@mkdir -p disk
 
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS)
 
-%.o: %.c
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJS) $(TARGET)
-
-.PHONY: all clean
+	rm -rf $(OBJ_DIR) $(TARGET)
